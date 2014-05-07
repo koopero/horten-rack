@@ -1,0 +1,14 @@
+{
+  "name": "horten-rack",
+  "version": "0.0.1",
+  "description": "A rack of devices for interfacing between Horten & TouchOSC",
+  "keywords": [
+    "Horten",
+    "TouchOSC"
+  ],
+  "main": "./src/index.js",
+  "dependencies": {
+    "extend": "~1.2.1",
+    "underscore": "~1.6.0"
+  }
+}
