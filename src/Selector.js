@@ -20,7 +20,9 @@ function Selector ( opt ) {
 	opt.primitive = true;
 	opt.name = opt.name || "Selector";
 
-	console.log ( "Selector", opt );
+	self.target = opt.target;
+
+	//console.log ( "Selector", opt );
 
 	H.Listener.call( self, opt, onData );
 	self.attach();
@@ -32,8 +34,6 @@ function Selector ( opt ) {
 
 
 	function onData ( value, path ) {
-		console.log ( 's', String(path), value );
-
 		switch ( String( path ) ) {
 			case '/index/': 
 				setIndex( value );
@@ -58,26 +58,51 @@ function Selector ( opt ) {
 				if ( value )
 					self.setIndex ( Math.random() * 1000000000 ); // % will take care of it
 			break;
-
-			default: 
-				console.log ( 's', path, value );
-			break;
-				
+		
 		}		
 	}
 
+	function refreshOptions() {
+		if ( 'function' == typeof _options )
+			setOptions( _options );
+	}
+
 	function setOptions ( v ) {
-		v = extend( true, v );
+		_options = v;
 
-		_options 	= v;
-		_keys 		= _.keys( v );
-		_values 	= _.values( v );
-		_length 	= _values.length;
+		if ( 'function' == typeof v ) {
+			v = v();
+		}
 
-		setIndex( _index );
+		if ( Array.isArray( v ) ) {
+			v = v.slice();
+
+			_keys 		= v.map( String );
+			_values 	= v;
+			_length 	= v.length;
+		} else if ( 'object' == typeof v ) {
+			v = extend( true, v );
+
+			_keys 		= _.keys( v ).map( String );
+			_values 	= _.values( v );
+			_length 	= _values.length;
+		} else if ( v != undefined ) {
+			_keys		= [ String(v) ];
+			_values		= [ v ];
+			_length		= 1;
+		} else {
+			_keys		= [];
+			_values 	= [];
+			_length		= 0;
+		}
+
+
+		//setIndex( _index );
 	}
 
 	function setLabel ( v ) {
+		refreshOptions();
+
 		var ind = _keys.indexOf( String(v) );
 		if ( ind == -1 )
 			return false;
@@ -93,6 +118,8 @@ function Selector ( opt ) {
 
 
 	function setRange ( v ) {
+		refreshOptions();
+
 		v = parseFloat( v );
 		if ( isNaN(v) )
 			return false;
@@ -107,6 +134,8 @@ function Selector ( opt ) {
 	}
 
 	function setIndex ( ind ) {
+		refreshOptions();
+
 		ind = parseInt( ind );
 
 		if ( isNaN( ind ) || !_length )
@@ -119,12 +148,18 @@ function Selector ( opt ) {
 
 		_index = ind;
 
+		var value = _values[ind];
+
 		self.set( {
 			index: _index,
 			range: _length ? ( _index + 0 ) / ( _length - 1 ) : 0,
 			label: _keys[ind],
-			value: _values[ind]
+			value: value
 		});
+
+		if ( 'string' == typeof self.target || self.target instanceof H.Path ) {
+			H.set( value, self.target );
+		}
 		
 		return ind;
 	}
