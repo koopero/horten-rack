@@ -27,14 +27,11 @@ function Colour ( config ) {
 	};
 
 	H.Listener.call( self, config, onData );
+
 	self.primitive = true;
 	self.name = self.name || 'Colour';
 	self.attach ();	
 	self.push();
-
-
-
-	//self.pads = ['sv'];
 
 	function onData ( value, path ) {
 		if ( path.length == 1 && path[0].length == 1 ) {
@@ -47,6 +44,7 @@ function Colour ( config ) {
 			case 'r':		setRGB		( value, null, null );	break;
 			case 'g':		setRGB		( null, value, null );	break;
 			case 'b':		setRGB		( null, null, value );	break;
+			
 			case 'a':		setAlpha	( value );				break;
 
 			case 'h':		setHSV		( value, null, null );	break;

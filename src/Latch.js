@@ -68,6 +68,26 @@ function Latch ( opt ) {
 		}
 	}
 
+	self.up = function () {
+		for ( var i = 0; i < arguments.length; i ++ ) {
+			devices.push( {
+				up: arguments[i]
+			} );
+		}
+		
+		return self;
+	}
+
+	self.down = function () {
+		for ( var i = 0; i < arguments.length; i ++ ) {
+			devices.push( {
+				down: arguments[i]
+			} );
+		}
+		
+		return self;
+	}
+
 	function up ( c ) {
 		eachDevice( c, function ( device, context ) {
 			apply( context, device.up );
@@ -162,6 +182,7 @@ function Latch ( opt ) {
 			key = key.toLowerCase();
 			value = parseInt( value );
 			switch( key ) {
+				case 'r':
 				case 'x':
 				case 'y':
 				case 'w':
@@ -187,8 +208,19 @@ function Latch ( opt ) {
 
 			var px = parseInt( path[2] ) - 1;
 			var py = parseInt( path[3] ) - 1;
+
+			switch ( pad.r ) {
+				case 1:
+					var swap = pad.h - px - 1;
+					px = py;
+					py = swap;
+				break;
+			}
 			
 			var c = pad.c + px + py * pad.w;
+			
+			//console.warn ( "Latch ", c );
+
 			value = !!value;
 
 			
@@ -227,6 +259,15 @@ function Latch ( opt ) {
 
 			if ( px >= pad.w || py >= pad.h )
 				return;
+
+			switch ( pad.r ) {
+				case 1:
+					var swap = px;
+					px = pad.h - py - 1;
+					py = swap;
+				break;
+			}
+			
 
 			var path = H.Path('pad', pad.id, px + 1, py + 1 );
 
